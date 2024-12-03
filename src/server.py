@@ -33,7 +33,13 @@ class Server():
     def appendHop(self, hop):
         """ Appends hop to list of hops needed to be done
         """
-        self.hops.append(hop)
+        if type(hop) == list:
+            self.hops += hop
+        else:
+            self.hops.append(hop)
+    
+    def clearOutgoing(self):
+        self.outgoing_hops = []
 
     # TODO: potentially add threading here?
     def runHops(self):
@@ -44,39 +50,39 @@ class Server():
                     match hop_iter:
                         case 0:
                             df = pd.DataFrame(data)
-                            self.posts = pd.concat([df, self.posts],ignore_index=True)
+                            self.posts = pd.concat([self.posts,df],ignore_index=True)
                             self.outgoing_hops.append(hop)
                         case 1:
                             user_id = data["user_id"]
-                            row_index = df[df[user_id] == user_id].index
-                            df.loc[row_index, 'posts'] += 1
+                            row_index = self.profile.loc[self.profile["user_id"] == user_id].index
+                            self.profile.loc[row_index, 'posts'] += 1
                 case Comment():
                     data, hop_iter = hop.execute()
                     match hop_iter:
                         case 0:
                             df = pd.DataFrame(data)
-                            self.comments = pd.concat([df, self.comments],ignore_index=True)
+                            self.comments = pd.concat([self.comments,df],ignore_index=True)
                             self.outgoing_hops.append(hop)
                         case 1:
                             user_id = data["user_id"]
-                            row_index = self.profile[self.profile[user_id] == user_id].index
-                            self.profile.loc[row_index, 'posts'] += 1
+                            row_index = self.profile[self.profile["user_id"] == user_id].index
+                            self.profile.loc[row_index, 'comments'] += 1
                 case Follow():
                     data, hop_iter = hop.execute()
                     match hop_iter:
                         case 0: 
                             edge_id = data["edge_id"]
-                            if edge_id not in df["edge_id"].values:
+                            if edge_id not in self.edges["edge_id"].values:
                                 df = pd.DataFrame(data)
-                                self.edges = pd.concat([df, self.edges],ignore_index=True)
+                                self.edges = pd.concat([self.edges, df],ignore_index=True)
                                 self.outgoing_hops.append(hop)
                         case 1:
                             df = pd.DataFrame(data)
-                            self.graph = pd.concat([df, self.edges],ignore_index=True)
+                            self.graph = pd.concat([self.graph, df],ignore_index=True)
                             self.outgoing_hops.append(hop)
                         case 2:
                             user_id = data["user_id"]
-                            row_index = self.profile[self.profile[user_id] == user_id].index
+                            row_index = self.profile.loc[self.profile["user_id"] == user_id].index
                             self.profile.loc[row_index, 'followers'] += 1
                 case Unfollow():
                     data, hop_iter = hop.execute()
@@ -88,12 +94,13 @@ class Server():
                                 self.outgoing_hops.append(hop)
                         case 1:
                             graph_id = data["graph_id"]
-                            df = self.graph[self.graph["graph_id"] != graph_id]
+                            self.graph = self.graph[self.graph["graph_id"] != graph_id]
                             self.outgoing_hops.append(hop)
                         case 2:
                             user_id = data["user_id"]
-                            row_index = self.profile[self.profile[user_id] == user_id].index
+                            row_index = self.profile.loc[self.profile["user_id"] == user_id].index
                             self.profile.loc[row_index, 'followers'] -= 1
+        self.hops = []
 
 
 
