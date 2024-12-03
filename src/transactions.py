@@ -31,9 +31,9 @@ class Post(Transaction):
         match self.hop_number:
             case 0:
                 self.hop_number += 1
-                return [self.post_id, self.username, self.content], 0
+                return {"post_id":self.post_id, "user_id":self.username, "content":self.content}, 0
             case 1:
-                return [self.username], 1
+                return {"user_id":self.username}, 1
 
 class Comment(Transaction):
     @override
@@ -54,9 +54,9 @@ class Comment(Transaction):
         match self.hop_number:
             case 0:
                 self.hop_number += 1
-                return [self.comment_id, self.username, self.comment], 0
+                return {"comment_id":self.comment_id, "user_id":self.username, "comment":self.comment}, 0
             case 1:
-                return [self.username], 1
+                return {"user_id": self.username}, 1
             
 class Follow(Transaction):
     @override
@@ -78,12 +78,12 @@ class Follow(Transaction):
             case 0:
                 self.hop_number += 1
                 # Return unique edgeID to identify if edge already exists in table
-                return [f"{self.username}-{self.follower}"], 0
+                return {"edge_id":f"{self.username}-{self.follower}"}, 0
             case 1:
                 self.hop_number += 1
-                return [self.username, self.follower], 1
+                return {"user_id":self.username, "follower_id":self.follower}, 1
             case 2:
-                return [self.username], 2
+                return {"user_id": self.username}, 2
 
 class Unfollow(Transaction):
     @override
@@ -100,10 +100,10 @@ class Unfollow(Transaction):
         match self.hop_number:
             case 0:
                 self.hop_number += 1
-                return [f"{self.username}-{self.follower}"], 0
+                return {"edge_id":f"{self.username}-{self.follower}"}, 0
             case 1:
                 self.hop_number += 1
-                return [self.username, self.follower], 1
+                return {"user_id":self.username, "follower_id":self.follower}, 1
             case 2:
                 self.hop_number += 1
-                return [self.username], 2
+                return {"user_id": self.username}, 2
