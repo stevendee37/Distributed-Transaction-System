@@ -60,15 +60,17 @@ class Comment(Transaction):
             
 class Follow(Transaction):
     @override
-    def __init__(self, username, follower):
+    def __init__(self, graph_id, username, follower):
         """ Creates a Follow object which represents a follow transaction
         Args:
+            - graph_id: unique ID of edge in graph that represents a follower relationship
             - user_id: unique ID of user who is being followed
             - username: name of user who is being followed
             - follower: name of follower who is following user
         """
         super().__init__()
 
+        self.graph_id = graph_id
         self.username = username
         self.follower = follower
     
@@ -81,17 +83,18 @@ class Follow(Transaction):
                 return {"edge_id":f"{self.username}-{self.follower}"}, 0
             case 1:
                 self.hop_number += 1
-                return {"user_id":self.username, "follower_id":self.follower}, 1
+                return {"graph_id":self.graph_id, "user_id":self.username, "follower_id":self.follower}, 1
             case 2:
                 return {"user_id": self.username}, 2
 
 class Unfollow(Transaction):
     @override
-    def __init__(self, username, follower):
+    def __init__(self, graph_id, username, follower):
         """ Creates an Unfollow object which represents an unfollow transaction
         """
         super().__init__()
 
+        self.graph_id = graph_id
         self.username = username
         self.follower = follower
     
@@ -103,7 +106,7 @@ class Unfollow(Transaction):
                 return {"edge_id":f"{self.username}-{self.follower}"}, 0
             case 1:
                 self.hop_number += 1
-                return {"user_id":self.username, "follower_id":self.follower}, 1
+                return {"graph_id":self.graph_id, "user_id":self.username, "follower_id":self.follower}, 1
             case 2:
                 self.hop_number += 1
                 return {"user_id": self.username}, 2
