@@ -55,6 +55,8 @@ class TestSystem():
 
         system.loadTransactions(transactions)
 
+        assert system.transactions == transactions
+
         system.processTransactions()
 
         assert system.transactions == []
@@ -69,29 +71,15 @@ class TestSystem():
         assert system.servers["3"].hops[0] == transactions[0]
         assert system.servers["3"].hops[1] == transactions[4]
         
-    # def test_PartitionDatabase(self, system):
-    #     output_dir = os.path.join(os.path.join(os.path.join(os.getcwd(), "systems"), "test"), "partitions")
-    #     system.partitionDatabase("profile")
+    def test_RunTransactions(self, system):
+        transactions = [
+            Comment(1, 1, "Adam", "Hello"), 
+            Post(2, 1, "Adam", "Hello world"),
+            Follow(1, 1, "Adam", "Bob"),
+            Unfollow(1,1, "Adam", "Bob"),
+            Comment(3, 1, "Adam", "Goodbye"),
+            Comment(6, 2, "Joe", "Looking good Joe!")
+        ]
+        system.loadTransactions(transactions)
 
-    #     partition_file = os.path.join(output_dir, "test-profile_1.csv")
-    #     db = pd.read_csv(partition_file)
-    #     first_row = db.iloc[0]
-    #     second_row = db.iloc[1]
-    #     assert first_row["username"] == "Amy"
-    #     assert second_row["username"] == "Brian"
-    #     db = db.drop(index=[0,1])
-    #     db.to_csv(partition_file, index=False)
-
-    #     partition_file = os.path.join(output_dir, "test-profile_2.csv")
-    #     db = pd.read_csv(partition_file)
-    #     first_row = db.iloc[0]
-    #     assert first_row["username"] == "Michael"
-    #     db = db.drop(index=0)
-    #     db.to_csv(partition_file, index=False)
-
-    #     partition_file = os.path.join(output_dir, "test-profile_3.csv")
-    #     db = pd.read_csv(partition_file)
-    #     first_row = db.iloc[0]
-    #     assert first_row["username"] == "Steven"
-    #     db = db.drop(index=0)
-    #     db.to_csv(partition_file, index=False)
+        system.runTransactions()

@@ -11,9 +11,6 @@ class Transaction(ABC):
     def execute(self):
         pass
 
-    def nextHop(self):
-        self.hop_number += 1
-
 class Post(Transaction):
     @override
     def __init__(self, post_id, user_id, username, content):
@@ -107,10 +104,9 @@ class Unfollow(Transaction):
         match self.hop_number:
             case 0:
                 self.hop_number += 1
-                return {"edge_id":[f"{self.user_id}-{self.follower}"]}, 0
+                return {"edge_id":f"{self.user_id}-{self.follower}"}, 0
             case 1:
                 self.hop_number += 1
                 return {"graph_id":self.graph_id, "user_id":self.user_id, "follower_id":self.follower}, 1
             case 2:
-                self.hop_number += 1
                 return {"user_id": self.user_id}, 2
