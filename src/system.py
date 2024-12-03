@@ -1,8 +1,8 @@
 # This file provides the class for the distributed system.
 
 import os
-import pandas as pd
 import threading
+import timeit
 from src.utils import determinePartition
 from src.server import Server
 from src.transactions import Comment, Post, Follow, Unfollow
@@ -13,7 +13,7 @@ class DistributedSystem():
         self.sys_dir = os.path.join(os.path.join(root_dir, "systems"), self.sys_name)
         self.transactions = []
 
-        """Server format:
+        """ Server format:
         Partition 1: Graph, Edges, and Profiles A-H
         Partition 2: Posts and Profiles I-P
         Partition 3: Comments and Profiles Q-Z
@@ -23,9 +23,6 @@ class DistributedSystem():
             "2": Server(self.sys_name, self.sys_dir, "2"),
             "3": Server(self.sys_name, self.sys_dir, "3")
         }
-
-    # def addTransaction(self, transaction):
-    #     self.transactions.append(transaction)
 
     def loadTransactions(self, transactions:list):
         """ Loads list of transactions for system to process and carry out
@@ -66,7 +63,7 @@ class DistributedSystem():
         self.transactions = []
 
     def retrieveOutgoing(self):
-        """ Retrieveds outgoing hops from all servers
+        """ Retrieves outgoing hops from all servers
         """
         self.transactions += self.servers["1"].outgoing_hops
         self.transactions += self.servers["2"].outgoing_hops
@@ -76,14 +73,30 @@ class DistributedSystem():
         self.servers["3"].outgoing_hops = []
 
     def runTransactions(self):
-        
+        """ Run loaded Transactions
+        """
+        start = timeit.default_timer()
         while True:
             if len(self.transactions) == 0:
                 break
             self.processTransactions()
-            self.servers["1"].runHops()
-            self.servers["2"].runHops()
-            self.servers["3"].runHops()
+
+            threads = []
+            """ Threading implemented, each server runs on a different thread
+            """
+            for server_id in ["1", "2", "3"]:
+                thread = threading.Thread(target=self.servers[server_id].runHops())
+                threads.append(thread)
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+            """ No threading, each server runs as a single server
+            """
+            # self.servers["1"].runHops()
+            # self.servers["2"].runHops()
+            # self.servers["3"].runHops()
+
             self.retrieveOutgoing()
 
         output_dir = os.path.join(self.sys_dir,'result')
@@ -107,3 +120,6 @@ class DistributedSystem():
                     server.comments.to_csv(output_file, index=False, header=True)
                     output_file = os.path.join(output_dir, f"{self.sys_name}-profile_{i}.csv")
                     server.profile.to_csv(output_file, index=False, header=True)
+        stop = timeit.default_timer()
+        time = f"Time: {stop-start}"
+        print(time)
