@@ -6,12 +6,15 @@ import timeit
 from src.utils import determinePartition
 from src.server import Server
 from src.transactions import Comment, Post, Follow, Unfollow
+from src.dynamic_transactions import DeletePost
 
 class DistributedSystem():
     def __init__(self, root_dir, sys_name:str):
         self.sys_name = sys_name
         self.sys_dir = os.path.join(os.path.join(root_dir, "systems"), self.sys_name)
         self.transactions = []
+        self.dynamic_transactions = []
+        self.dynamic_ready = False
 
         """ Server format:
         Partition 1: Graph, Edges, and Profiles A-H
@@ -59,7 +62,17 @@ class DistributedSystem():
                     else:
                         self.servers["1"].appendHop(transaction)
                 case _:
-                    exit("Unsupported transaction type")
+                    if self.dynamic_ready:
+                        match transaction:
+                            case DeletePost():
+                                if transaction.hop_number == 1:
+                                    partition = determinePartition(transaction.username)
+                                    self.servers[f"{partition}"].appendHop(transaction)
+                                else:
+                                    self.servers["2"].appendHop(transaction)
+                    else:
+                        self.dynamic_transactions.append(transaction)
+                    
         self.transactions = []
 
     def retrieveOutgoing(self):
@@ -96,6 +109,26 @@ class DistributedSystem():
             # self.servers["1"].runHops()
             # self.servers["2"].runHops()
             # self.servers["3"].runHops()
+
+            self.retrieveOutgoing()
+        
+        """ Run dynamic transactions
+        
+        """
+        self.transactions = self.dynamic_transactions
+        self.dynamic_transactions = []
+        self.dynamic_ready = True
+        while True:
+            if len(self.transactions) == 0:
+                break
+            self.processTransactions()
+            threads = []
+            for server_id in ["1", "2", "3"]:
+                thread = threading.Thread(target=self.servers[server_id].runHops())
+                threads.append(thread)
+                thread.start()
+            for thread in threads:
+                thread.join()
 
             self.retrieveOutgoing()
 

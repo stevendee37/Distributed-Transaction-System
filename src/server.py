@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from src.transactions import Comment, Post, Follow, Unfollow
+from src.dynamic_transactions import DeletePost
 
 class Server():
     def __init__(self, sys_name, sys_dir, partition_num):
@@ -100,6 +101,19 @@ class Server():
                             user_id = data["user_id"]
                             row_index = self.profile.loc[self.profile["user_id"] == user_id].index
                             self.profile.loc[row_index, 'followers'] -= 1
+                case _:
+                    match hop:
+                        case DeletePost():
+                            data, hop_ter = hop.execute()
+                            match hop_ter:
+                                case 0:
+                                    post_id = data["post_id"]
+                                    self.posts = self.posts[self.posts["post_id"] != post_id]
+                                    self.outgoing_hops.append(hop)
+                                case 1:
+                                    user_id = data["user_id"]
+                                    row_index = self.profile.loc[self.profile["user_id"] == user_id].index
+                                    self.profile.loc[row_index, 'posts']
         self.hops = []
 
 

@@ -1,4 +1,6 @@
 ## This file implements the predefined transactions for the system
+
+import timeit
 from abc import ABC, abstractmethod
 from overrides import override
 
@@ -24,8 +26,15 @@ class Post(Transaction):
         self.user_id = user_id
         self.username = username
         self.content = content
+
+        self.start = timeit.default_timer()
+        self.stop = None
+        self.time = None
     @override
     def execute(self):
+        self.stop = timeit.default_timer()
+        self.time = f"Time (Post): {self.stop-self.start}"
+        print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1
@@ -48,8 +57,15 @@ class Comment(Transaction):
         self.username = username
         self.comment = comment
 
+        self.start = timeit.default_timer()
+        self.stop = None
+        self.time = None
+
     @override
     def execute(self):
+        self.stop = timeit.default_timer()
+        self.time = f"Time (Comment): {self.stop-self.start}"
+        print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1
@@ -74,8 +90,15 @@ class Follow(Transaction):
         self.username = username
         self.follower = follower
     
+        self.start = timeit.default_timer()
+        self.stop = None
+        self.time = None
+
     @override
     def execute(self):
+        self.stop = timeit.default_timer()
+        self.time = f"Time (Follow): {self.stop-self.start}"
+        print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1
@@ -99,8 +122,15 @@ class Unfollow(Transaction):
         self.username = username
         self.follower = follower
     
+        self.start = timeit.default_timer()
+        self.stop = None
+        self.time = None
+        
     @override
     def execute(self):
+        self.stop = timeit.default_timer()
+        self.time = f"Time (Unfollow): {self.stop-self.start}"
+        print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1
