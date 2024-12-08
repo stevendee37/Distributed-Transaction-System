@@ -113,7 +113,7 @@ class Server():
                                 case 1:
                                     user_id = data["user_id"]
                                     row_index = self.profile.loc[self.profile["user_id"] == user_id].index
-                                    self.profile.loc[row_index, 'posts']
+                                    self.profile.loc[row_index, 'posts'] -= 1
         self.hops = []
 
 

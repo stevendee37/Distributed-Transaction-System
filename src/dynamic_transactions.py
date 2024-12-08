@@ -24,9 +24,6 @@ class DeletePost(Transaction):
 
     @override
     def execute(self):
-        self.stop = timeit.default_timer()
-        self.time = f"Time (DeletePost): {self.stop-self.start}"
-        print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1

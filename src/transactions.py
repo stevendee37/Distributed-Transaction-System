@@ -34,7 +34,7 @@ class Post(Transaction):
     def execute(self):
         self.stop = timeit.default_timer()
         self.time = f"Time (Post): {self.stop-self.start}"
-        print(self.time)
+        # print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1
@@ -65,7 +65,7 @@ class Comment(Transaction):
     def execute(self):
         self.stop = timeit.default_timer()
         self.time = f"Time (Comment): {self.stop-self.start}"
-        print(self.time)
+        # print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1
@@ -98,7 +98,7 @@ class Follow(Transaction):
     def execute(self):
         self.stop = timeit.default_timer()
         self.time = f"Time (Follow): {self.stop-self.start}"
-        print(self.time)
+        # print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1
@@ -130,7 +130,7 @@ class Unfollow(Transaction):
     def execute(self):
         self.stop = timeit.default_timer()
         self.time = f"Time (Unfollow): {self.stop-self.start}"
-        print(self.time)
+        # print(self.time)
         match self.hop_number:
             case 0:
                 self.hop_number += 1

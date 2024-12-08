@@ -30,7 +30,7 @@ class DistributedSystem():
     def loadTransactions(self, transactions:list):
         """ Loads list of transactions for system to process and carry out
         """
-        self.transactions += transactions
+        self.transactions = transactions
     
     def processTransactions(self):
         """ Serves as transaction chopping/processing layer
@@ -100,6 +100,7 @@ class DistributedSystem():
             for server_id in ["1", "2", "3"]:
                 thread = threading.Thread(target=self.servers[server_id].runHops())
                 threads.append(thread)
+            for thread in threads:
                 thread.start()
             for thread in threads:
                 thread.join()
