@@ -16,8 +16,9 @@ To evaluate the system, 3000 unique profiles were generated, and 1000 random, pr
 
 ## Results
 
-Our system achieved improved throughput and latency compared to a non-distributed system using the same tables and transactions. The distributed system outperforms the non-distributed system in terms of throughput and latency. 
+Our system achieved improved throughput and latency compared to a non-distributed system using the same tables and transactions. The distributed system outperforms the non-distributed system in terms of throughput and latency. The tables below show the results for average latency of 100 transactions, and the time to completion for varying amounts of transactions. 
 
 <p align="center">
     <img src="figures/latency.png" alt="Latency">
+    <img src="figures/time_to_completion.png" alt="Time_to_Completion">
 </p>
